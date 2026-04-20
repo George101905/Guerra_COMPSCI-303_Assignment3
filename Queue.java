@@ -1,69 +1,67 @@
-public class Queue<E> {
-    private static final int DEFAULT_CAPACITY = 10;
-    private int capacity;
-    private int size;
-    private int frontIndex;
-    private int rearIndex;
-    private Object[] data;
+import java.util.*;
 
-    public Queue() {
-        this.capacity = DEFAULT_CAPACITY;
-        this.data = new Object[capacity];
-        this.size = 0;
-        this.frontIndex = 0;
-        this.rearIndex = 0;
+public class Queue<E> {
+    private class Node {
+        E data;
+        Node next;
+
+        Node(E data){
+            this.data = data;
+            this.next = null;
+        }
     }
 
-    public boolean offer(E item){
-        if (size == capacity) {
-            resize();
+    private Node front;
+    private Node rear;
+    private int size;
+
+    public Queue(){
+        front = rear = null;
+        size = 0;
+    }
+
+    public void offer (E value){
+        Node newNode = new Node(value);
+        if(empty()) {
+            front = rear = newNode;
+        } else {
+            rear.next = newNode;
+            rear = newNode;
         }
-
-        size ++;
-        rearIndex = (rearIndex + 1) % capacity;
-        data[rearIndex] = item;
-
-        return true;
+        size++;
     }
 
     public E poll() {
-        if (size == 0){
-            return null;
-        }
-
-        E value = (E) data[frontIndex];
-        data[frontIndex] = null;
-        frontIndex = (frontIndex + 1) % capacity;
+        if (empty()) {
+            throw new NoSuchElementException("Queue is empty");
+        }    
+        E value = front.data;
+        front = front.next;
         size--;
 
+        if (front == null) { rear = null; }
         return value;
     }
 
-    public void resize() {
-        int newCapacity = 2 * capacity;
-        Object[] newData = new Object[newCapacity];
-
-        int j = frontIndex;
-
-        for (int i = 0; i < size; i++) {
-            newData[i] = data[i];
-            j = (j + 1) % capacity;
+    public E peek() {
+        if(empty()){
+            throw new NoSuchElementException("Queue is empty");
         }
-
-        frontIndex = 0;
-        rearIndex = size - 1;
-        capacity = newCapacity;
-        data = newData;
+        return front.data;
     }
 
     public int size() {
         return size;
     }
+    
+    public boolean empty() {
+        return (size == 0);
+    }
 
-    public boolean isEmpty(){
-        if (size <= 0) {
-            return true;
-        }
-        return false;
+    public void move_to_rear() {
+        if (size <= 1) return;
+        E frontValue = peek();
+        poll();
+        offer(frontValue);
     }
 }
